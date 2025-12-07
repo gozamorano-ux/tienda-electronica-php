@@ -342,14 +342,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cart_action'])) {
     }
 
     if ($action === 'checkout') {
-        
-        session_regenerate_id(true);
-        $_SESSION['carrito'] = [];
-        $_SESSION['msg'] = "Pago procesado. Gracias por tu compra.";
-        header('Location: ' . $_SERVER['PHP_SELF'] . '#cart');
+
+    // Mejora de seguridad: evitar checkout con carrito vacío
+    if (empty($_SESSION['carrito'])) {
+        $_SESSION['msg_err'] = "No puedes pagar si el carrito está vacío.";
+        header("Location: " . $_SERVER['PHP_SELF'] . "#cart");
         exit;
     }
+
+    session_regenerate_id(true);
+    $_SESSION['carrito'] = [];
+    $_SESSION['msg'] = "Pago procesado. Gracias por tu compra.";
+    header('Location: ' . $_SERVER['PHP_SELF'] . '#cart');
+    exit;
 }
+
 
 /* ============================= */
 /* Cargar reseñas existentes */
@@ -546,3 +553,4 @@ $allReviews = file_exists($reviewsFile) ? json_decode(file_get_contents($reviews
   <a href="gestion/listar_clientes.php">Ver Clientes</a> |
   <a href="gestion/compras.php">Reporte de Compras</a>
 </nav>
+
